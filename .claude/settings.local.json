@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:metaforge.app)",
+      "Bash(mkdir:*)",
+      "mcp__shadcn__getComponents",
+      "Bash(npm run dev:*)",
+      "mcp__shadcn__getComponent"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
