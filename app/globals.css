@@ -216,3 +216,102 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Additional CSS for Navbar and Sidebar */
+:root {
+  --background-elevated: oklch(0.25 0.0063 34.2976);
+  --primary-glow: oklch(0.75 0.1867 47.6044);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --gradient-orange: linear-gradient(135deg, oklch(0.7049 0.1867 47.6044) 0%, oklch(0.6 0.15 40) 100%);
+}
+
+@layer components {
+  /* Overlay backdrop for menus/search */
+  .overlay-backdrop {
+    @apply fixed inset-0 bg-black/60 backdrop-blur-sm z-40;
+  }
+
+  /* Search input styling */
+  .search-input {
+    @apply bg-secondary border-none rounded-lg px-4 py-2 pl-10;
+    @apply text-foreground placeholder:text-muted-foreground;
+    @apply focus:ring-2 focus:ring-primary/50 focus:outline-none;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full hover:bg-muted-foreground;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme(colors.border) theme(colors.background);
+  }
+
+  /* Gradients */
+  .bg-gradient-orange {
+    background: var(--gradient-orange);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .bg-background-elevated {
+    background-color: var(--background-elevated);
+  }
+
+  .hover\:bg-primary-glow:hover {
+    background-color: var(--primary-glow);
+  }
+}
+
+@layer utilities {
+  /* Animate utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
