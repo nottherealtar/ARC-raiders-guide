@@ -37,6 +37,69 @@ enum CoinType {
   RAIDER_TOKEN
 }
 
+enum ItemType {
+  ADVANCED_MATERIAL
+  AMMUNITION
+  AUGMENT
+  BASIC_MATERIAL
+  BLUEPRINT
+  CONSUMABLE
+  COSMETIC
+  GADGET
+  KEY
+  MATERIAL
+  MEDICAL
+  MISC
+  MODIFICATION
+  MODS
+  NATURE
+  QUEST_ITEM
+  QUICK_USE
+  RECYCLABLE
+  REFINED_MATERIAL
+  REFINEMENT
+  SHIELD
+  THROWABLE
+  TOPSIDE_MATERIAL
+  TRINKET
+  WEAPON
+}
+
+enum Workbench {
+  SCRAPPY
+  GUNSMITH
+  GEAR_BENCH
+  MEDICAL_LAB
+  EXPLOSIVES_STATION
+  UTILITY_STATION
+  REFINER
+}
+
+enum LootArea {
+  ARC
+  COMMERCIAL
+  MEDICAL
+  RESIDENTIAL
+  ELECTRICAL
+  TECHNOLOGICAL
+  EXODUS
+  INDUSTRIAL
+  MECHANICAL
+  NATURE
+  OLD_WORLD
+  RAIDER
+  SECURITY
+}
+
+enum AmmoType {
+  SHOTGUN
+  ENERGY
+  HEAVY
+  LAUNCHER
+  LIGHT
+  MEDIUM
+}
+
 // Auth.js required models
 model Account {
   id                String  @id @default(cuid())
@@ -80,6 +143,7 @@ model User {
   discord_username String?
   accounts         Account[]
   sessions         Session[]
+  comments         Comment[]
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 }
@@ -90,4 +154,47 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Item {
+  id             String     @id @default(cuid())
+  name           String
+  description    String     @db.Text
+  item_type      ItemType?
+  loadout_slots  String[]   @default([])
+  icon           String?
+  rarity         Rarity?
+  value          Int        @default(0)
+  workbench      Workbench?
+  stat_block     Json       @default("{}")
+  flavor_text    String     @db.Text
+  subcategory    String?
+  shield_type    String?
+  loot_area      LootArea?
+  sources        Json?
+  ammo_type      AmmoType?
+  locations      String[]   @default([])
+  comments       Comment[]
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
+
+  @@index([item_type])
+  @@index([rarity])
+  @@index([workbench])
+  @@index([loot_area])
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  content    String   @db.Text
+  itemId     String
+  item       Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([itemId])
+  @@index([userId])
+  @@index([created_at])
 }

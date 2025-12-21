@@ -3,6 +3,7 @@ import { Cairo } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Sidebar } from "@/components/Sidebar";
+import { SessionProvider } from "@/components/SessionProvider";
 import { auth } from "@/lib/auth";
 
 const cairo = Cairo({
@@ -34,11 +35,13 @@ export default async function RootLayout({
           fontFamily: 'var(--font-cairo)'
         }}
       >
-        <Navbar session={session} />
-        <Sidebar />
-        <main className="mr-14 mt-14">
-          {children}
-        </main>
+        <SessionProvider session={session}>
+          <Navbar session={session} />
+          <Sidebar />
+          <main className="mr-14 mt-14">
+            {children}
+          </main>
+        </SessionProvider>
       </body>
     </html>
   );
