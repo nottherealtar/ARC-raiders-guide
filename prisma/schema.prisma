@@ -132,20 +132,28 @@ model Session {
 }
 
 model User {
-  id               String    @id @default(cuid())
-  username         String?   @unique
-  name             String?
-  email            String?   @unique
-  emailVerified    DateTime?
-  password         String?
-  image            String?
-  embark_id        String?
-  discord_username String?
-  accounts         Account[]
-  sessions         Session[]
-  comments         Comment[]
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id                String    @id @default(cuid())
+  username          String?   @unique
+  name              String?
+  email             String?   @unique
+  emailVerified     DateTime?
+  password          String?
+  image             String?
+  embark_id         String?
+  discord_username  String?
+  accounts          Account[]
+  sessions          Session[]
+  comments          Comment[]
+  listings          Listing[]
+  tradesAsBuyer     Trade[]   @relation("BuyerTrades")
+  tradesAsSeller    Trade[]   @relation("SellerTrades")
+  ratingsGiven      Rating[]  @relation("RatingsGiven")
+  ratingsReceived   Rating[]  @relation("RatingsReceived")
+  chatsAsParticipant1 Chat[]  @relation("ChatParticipant1")
+  chatsAsParticipant2 Chat[]  @relation("ChatParticipant2")
+  messages          Message[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }
 
 model VerificationToken {
@@ -157,26 +165,29 @@ model VerificationToken {
 }
 
 model Item {
-  id             String     @id @default(cuid())
-  name           String
-  description    String     @db.Text
-  item_type      ItemType?
-  loadout_slots  String[]   @default([])
-  icon           String?
-  rarity         Rarity?
-  value          Int        @default(0)
-  workbench      Workbench?
-  stat_block     Json       @default("{}")
-  flavor_text    String     @db.Text
-  subcategory    String?
-  shield_type    String?
-  loot_area      LootArea?
-  sources        Json?
-  ammo_type      AmmoType?
-  locations      String[]   @default([])
-  comments       Comment[]
-  created_at     DateTime   @default(now())
-  updated_at     DateTime   @updatedAt
+  id                   String        @id @default(cuid())
+  name                 String
+  description          String        @db.Text
+  item_type            ItemType?
+  loadout_slots        String[]      @default([])
+  icon                 String?
+  rarity               Rarity?
+  value                Int           @default(0)
+  workbench            Workbench?
+  stat_block           Json          @default("{}")
+  flavor_text          String        @db.Text
+  subcategory          String?
+  shield_type          String?
+  loot_area            LootArea?
+  sources              Json?
+  ammo_type            AmmoType?
+  locations            String[]      @default([])
+  comments             Comment[]
+  listings             Listing[]
+  listingPaymentItems  ListingItem[] @relation("ListingPaymentItems")
+  arcLoot              ArcLoot[]     @relation("ArcLootItems")
+  created_at           DateTime      @default(now())
+  updated_at           DateTime      @updatedAt
 
   @@index([item_type])
   @@index([rarity])
@@ -197,4 +208,213 @@ model Comment {
   @@index([itemId])
   @@index([userId])
   @@index([created_at])
+}
+
+enum ListingType {
+  WTS // Want to Sell
+  WTB // Want to Buy
+}
+
+enum ListingStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentType {
+  SEEDS
+  ITEMS
+  OPEN_OFFERS
+}
+
+model Listing {
+  id            String        @id @default(cuid())
+  type          ListingType
+  status        ListingStatus @default(ACTIVE)
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Main item being sold/bought
+  itemId        String
+  item          Item          @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  quantity      Int
+
+  // Payment preference
+  paymentType   PaymentType
+  seedsAmount   Int?          // For SEEDS payment type
+  description   String        @db.Text
+
+  // Related items for ITEMS payment type
+  paymentItems  ListingItem[]
+
+  trades        Trade[]
+  chats         Chat[]
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([itemId])
+  @@index([type])
+  @@index([status])
+  @@index([created_at])
+}
+
+model ListingItem {
+  id         String   @id @default(cuid())
+  listingId  String
+  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  itemId     String
+  item       Item     @relation("ListingPaymentItems", fields: [itemId], references: [id], onDelete: Cascade)
+  quantity   Int
+  created_at DateTime @default(now())
+
+  @@index([listingId])
+  @@index([itemId])
+}
+
+enum TradeStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
+}
+
+model Trade {
+  id         String      @id @default(cuid())
+  listingId  String
+  listing    Listing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyerId    String
+  buyer      User        @relation("BuyerTrades", fields: [buyerId], references: [id], onDelete: Cascade)
+  sellerId   String
+  seller     User        @relation("SellerTrades", fields: [sellerId], references: [id], onDelete: Cascade)
+  status     TradeStatus @default(PENDING)
+  rating     Rating?
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+
+  @@index([listingId])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([status])
+}
+
+model Rating {
+  id         String   @id @default(cuid())
+  tradeId    String   @unique
+  trade      Trade    @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  fromUserId String
+  fromUser   User     @relation("RatingsGiven", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUserId   String
+  toUser     User     @relation("RatingsReceived", fields: [toUserId], references: [id], onDelete: Cascade)
+  score      Int      // 1-5 stars
+  honest     Boolean  // Was the trader honest?
+  comment    String?  @db.Text
+  created_at DateTime @default(now())
+
+  @@index([fromUserId])
+  @@index([toUserId])
+  @@index([tradeId])
+}
+
+enum ChatStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model Chat {
+  id                    String     @id @default(cuid())
+  listingId             String
+  listing               Listing    @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  // Two participants in the chat
+  participant1Id        String
+  participant1          User       @relation("ChatParticipant1", fields: [participant1Id], references: [id], onDelete: Cascade)
+  participant2Id        String
+  participant2          User       @relation("ChatParticipant2", fields: [participant2Id], references: [id], onDelete: Cascade)
+
+  // Trade approval tracking
+  participant1Approved  Boolean    @default(false)
+  participant2Approved  Boolean    @default(false)
+  status                ChatStatus @default(ACTIVE)
+
+  messages              Message[]
+  created_at            DateTime   @default(now())
+  updated_at            DateTime   @updatedAt
+
+  @@unique([listingId, participant1Id, participant2Id])
+  @@index([listingId])
+  @@index([participant1Id])
+  @@index([participant2Id])
+  @@index([status])
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  chatId     String
+  chat       Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  senderId   String
+  sender     User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content    String   @db.Text
+  read       Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  @@index([chatId])
+  @@index([senderId])
+  @@index([created_at])
+}
+
+model Arc {
+  id          String     @id
+  name        String
+  description String     @db.Text
+  icon        String?
+  image       String?
+  loot        ArcLoot[]
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+
+  @@index([name])
+}
+
+model ArcLoot {
+  id         String   @id @default(cuid())
+  arcId      String
+  arc        Arc      @relation(fields: [arcId], references: [id], onDelete: Cascade)
+  itemId     String
+  item       Item     @relation("ArcLootItems", fields: [itemId], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now())
+
+  @@index([arcId])
+  @@index([itemId])
+}
+
+model Quest {
+  id              String        @id
+  name            String
+  objectives      String[]
+  xp              Int           @default(0)
+  granted_items   Json          @default("[]")
+  locations       Json          @default("[]")
+  marker_category String?
+  image           String?
+  guide_links     Json          @default("[]")
+  required_items  Json          @default("[]")
+  rewards         QuestReward[]
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+
+  @@index([name])
+}
+
+model QuestReward {
+  id         String   @id @default(cuid())
+  questId    String
+  quest      Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
+  itemId     String
+  quantity   Int
+  created_at DateTime @default(now())
+
+  @@index([questId])
+  @@index([itemId])
 }

@@ -89,15 +89,10 @@ export async function registerAction(credentials: RegisterCredentials): Promise<
       };
     }
 
-    // Validate embark_id if provided (should start with #)
-    if (credentials.embark_id && !credentials.embark_id.startsWith("#")) {
-      return {
-        success: false,
-        error: {
-          message: "Embark ID must start with #",
-          field: "embark_id",
-        },
-      };
+    // Normalize embark_id - add # prefix if not present
+    let embark_id = credentials.embark_id;
+    if (embark_id && !embark_id.startsWith("#")) {
+      embark_id = `#${embark_id}`;
     }
 
     // Check if email already exists
@@ -144,7 +139,7 @@ export async function registerAction(credentials: RegisterCredentials): Promise<
         name: credentials.name,
         email: credentials.email,
         password: hashedPassword,
-        embark_id: credentials.embark_id || null,
+        embark_id: embark_id || null,
         discord_username: credentials.discord_username || null,
       },
     });

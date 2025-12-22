@@ -8,7 +8,7 @@ const prisma = new PrismaClient({ adapter })
 
 // Load items data
 const itemsData = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'data', 'items.json'), 'utf-8')
+  fs.readFileSync(path.join(process.cwd(), 'lib', 'data', 'items.json'), 'utf-8')
 )
 
 /* ----------------------------------------

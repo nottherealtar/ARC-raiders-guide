@@ -1,6 +1,8 @@
 import { PrismaClient } from '@/lib/generated/prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { seedItems } from '@/lib/seedItems'
+import { seedArcs } from '@/lib/seedArcs'
+import { seedQuests } from '@/lib/seedQuests'
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
 const prisma = new PrismaClient({ adapter })
@@ -9,13 +11,19 @@ async function main() {
   console.log('🌱 Starting database seeding...\n')
 
   try {
-    // Seed items
+    // Seed items first (ARCs and Quests depend on items for loot/rewards)
     await seedItems()
+
+    // Seed ARCs
+    await seedArcs()
+
+    // Seed Quests (depends on items for rewards)
+    await seedQuests()
 
     // Add more seed functions here as needed
     // await seedWeapons()
     // await seedUsers()
-    // etc...
+    // etc.
 
     console.log('\n✅ Database seeding completed successfully!')
   } catch (error) {

@@ -196,13 +196,13 @@ export function RegisterForm() {
                 id="embark_id"
                 name="embark_id"
                 type="text"
-                placeholder="#12345678"
+                placeholder="12345678 or #12345678"
                 value={formData.embark_id}
                 onChange={handleChange}
                 disabled={isPending}
               />
               <p className="text-xs text-muted-foreground">
-                Your in-game Embark ID (starts with #)
+                Your in-game Embark ID (# is optional)
               </p>
             </div>
 

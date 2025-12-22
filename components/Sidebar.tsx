@@ -7,7 +7,8 @@ import {
   Home, FileText, AppWindow, Package, Database, Map, Target,
   Wrench, List, Calendar, Code, MessageCircle, Settings,
   Shield, FileQuestion, Mail, ChevronDown, ChevronRight,
-  Swords, ScrollText, Users, MapPin, Crosshair, Trophy, Layers
+  Swords, ScrollText, Users, MapPin, Crosshair, Trophy, Layers,
+  MessageSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ const mainItems: SidebarItem[] = [
   { icon: FileText, label: 'الأدلة', href: '/guides' },
   { icon: AppWindow, label: 'تطبيق التراكب', href: 'https://www.overwolf.com/app/metaforge', external: true },
   { icon: Package, label: 'السوق', href: '/marketplace' },
+  { icon: MessageSquare, label: 'المحادثات', href: '/chat' },
   { icon: Layers, label: 'مستويات قيمة الغنائم', href: '/loot-value' },
   { icon: Target, label: 'العناصر المطلوبة', href: '/needed-items' },
 ];

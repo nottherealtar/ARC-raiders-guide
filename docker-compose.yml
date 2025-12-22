@@ -16,6 +16,61 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - arcraiders-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arcraiders-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-arcraiders}?schema=public
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:-}
+      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET:-}
+      PORT: 3001
+      HOSTNAME: 0.0.0.0
+    volumes:
+      - ./prisma:/app/prisma
+    healthcheck:
+      test: ['CMD', 'node', '-e', "require('http').get('http://localhost:3001', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - arcraiders-network
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: arcraiders-nginx
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - arcraiders-network
+
+networks:
+  arcraiders-network:
+    driver: bridge
 
 volumes:
   postgres_data:
