@@ -39,3 +39,4 @@ npx prisma migrate deploy || echo "⚠️  Migrations may have already been appl
 # Start the application
 echo "🎯 Starting application..."
 exec "$@"
+
