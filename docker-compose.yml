@@ -64,6 +64,9 @@ services:
         condition: service_completed_successfully
     entrypoint: []  # Override Dockerfile ENTRYPOINT
     command: ['node', 'server.js']
+    ports:
+      - '80:3001'  # Expose Next.js directly on port 80
+      # Or use '3001:3001' if you prefer to access on port 3001
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-arcraiders}?schema=public
@@ -82,31 +85,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    networks:
-      - arcraiders-network
-
-  nginx:
-    image: nginx:1.27-alpine
-    container_name: arcraiders-nginx
-    restart: unless-stopped
-    depends_on:
-      app:
-        condition: service_healthy
-    ports:
-      - '80:80'
-      # - '443:443'  # Uncomment when enabling SSL
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/html:/usr/share/nginx/html:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-
-      # - /etc/letsencrypt:/etc/letsencrypt:ro  # Uncomment when enabling SSL
-    healthcheck:
-      test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost/health']
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
     networks:
       - arcraiders-network
 
