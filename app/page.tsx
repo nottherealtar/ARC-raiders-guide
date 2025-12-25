@@ -8,6 +8,9 @@ import { StructuredData, getBreadcrumbSchema } from '@/components/StructuredData
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
+// Force dynamic rendering to avoid database queries during build
+export const dynamic = 'force-dynamic';
+
 export default function Home() {
   return (
     <main className="min-h-screen">
