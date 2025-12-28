@@ -2,7 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { NotificationType } from "@/lib/generated/prisma/client";
+import { NotificationType, Prisma } from "@/lib/generated/prisma/client";
 
 /**
  * Create a notification for a user
@@ -20,7 +20,7 @@ export async function createNotification({
   title: string;
   message: string;
   link?: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Prisma.JsonValue;
 }) {
   try {
     const notification = await prisma.notification.create({
@@ -30,7 +30,7 @@ export async function createNotification({
         title,
         message,
         link,
-        metadata: metadata || {},
+        metadata: metadata ?? Prisma.JsonNull,
       },
     });
 

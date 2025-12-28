@@ -49,5 +49,5 @@ export type {
 
 // Utils
 export { sanitizeHtml } from "./utils/sanitize";
-export { generateSlug, ensureUniqueSlug } from "./utils/slugify";
+export { generateSlug, extractBlogIdFromSlug } from "./utils/slugify";
 export { generateExcerpt } from "./utils/excerpt";

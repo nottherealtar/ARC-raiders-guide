@@ -25,6 +25,14 @@ export default async function MyBlogsPage() {
   const blogs = await prisma.blog.findMany({
     where: { authorId: session.user.id },
     include: {
+      author: {
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          image: true,
+        },
+      },
       category: true,
       _count: { select: { comments: true } },
     },
