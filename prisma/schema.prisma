@@ -346,7 +346,11 @@ model Chat {
   participant2Id        String
   participant2          User       @relation("ChatParticipant2", fields: [participant2Id], references: [id], onDelete: Cascade)
 
-  // Trade approval tracking
+  // Lock-in tracking (must lock in before seeing embark IDs)
+  participant1LockedIn  Boolean    @default(false)
+  participant2LockedIn  Boolean    @default(false)
+
+  // Trade approval tracking (happens after lock-in)
   participant1Approved  Boolean    @default(false)
   participant2Approved  Boolean    @default(false)
   status                ChatStatus @default(ACTIVE)
