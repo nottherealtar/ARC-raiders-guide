@@ -591,6 +591,7 @@ model MapAreaLabel {
   nameAr          String
   lat             Float
   lng             Float
+  zlayers         Int      @default(2147483647) // 1=bottom, 2=top, 2147483647=all floors
   fontSize        Int      @default(14)
   color           String   @default("#ffffff")
   addedByUserId   String?
@@ -599,6 +600,7 @@ model MapAreaLabel {
   updated_at      DateTime @updatedAt
 
   @@index([mapID])
+  @@index([zlayers])
   @@index([addedByUserId])
 }
 

@@ -484,16 +484,16 @@ export const StellaMontisMapClient = memo(function StellaMontisMapClient({ isAdm
     fetchMapConfig();
   }, [currentFloor]);
 
-  // Fetch area labels from API
+  // Fetch area labels from API (floor-filtered)
   useEffect(() => {
     async function fetchAreaLabels() {
       try {
-        const response = await fetch('/api/maps/stella-montis/labels');
+        const response = await fetch(`/api/maps/stella-montis/labels?floor=${currentFloor}`);
         const data = await response.json();
 
         if (data.success) {
           setAreaLabels(data.labels);
-          console.log(`✅ Loaded ${data.labels.length} area labels for Stella Montis`);
+          console.log(`✅ Loaded ${data.labels.length} area labels for Stella Montis (${currentFloor} floor)`);
         }
       } catch (error) {
         console.error('❌ Failed to fetch Stella Montis area labels:', error);
@@ -501,7 +501,7 @@ export const StellaMontisMapClient = memo(function StellaMontisMapClient({ isAdm
     }
 
     fetchAreaLabels();
-  }, []);
+  }, [currentFloor]); // Re-fetch when floor changes
 
   // Fetch regions from API
   useEffect(() => {
@@ -713,8 +713,9 @@ export const StellaMontisMapClient = memo(function StellaMontisMapClient({ isAdm
       return;
     }
 
-    // Get the current floor's zlayers value
-    const zlayers = currentFloor === 'bottom' ? 1 : currentFloor === 'top' ? 2 : 2147483647;
+    // Get the zlayers value - use settings.zlayers if provided (admin selected floor), otherwise use current floor
+    const zlayers = continuousPlacementSettings?.zlayers
+      ?? (currentFloor === 'bottom' ? 1 : currentFloor === 'top' ? 2 : 2147483647);
 
     // If in continuous placement mode, create marker directly
     if (continuousPlacementSettings) {
@@ -722,7 +723,10 @@ export const StellaMontisMapClient = memo(function StellaMontisMapClient({ isAdm
       const tempId = `temp-${Date.now()}`;
       setTemporaryMarkers(prev => [...prev, { lat, lng, id: tempId }]);
 
-      console.log('📍 Placing marker at:', { lat, lng, zlayers, floor: currentFloor });
+      // Use zlayers from settings if admin selected a floor, otherwise use current floor
+      const markerZlayers = continuousPlacementSettings.zlayers ?? zlayers;
+
+      console.log('📍 Placing marker at:', { lat, lng, zlayers: markerZlayers, floor: currentFloor });
       console.log('Settings:', continuousPlacementSettings);
 
       try {
@@ -732,7 +736,7 @@ export const StellaMontisMapClient = memo(function StellaMontisMapClient({ isAdm
           body: JSON.stringify({
             lat,
             lng,
-            zlayers, // Include floor-specific zlayers
+            zlayers: markerZlayers, // Include floor-specific zlayers (from settings or current floor)
             category: continuousPlacementSettings.category,
             subcategory: continuousPlacementSettings.subcategory || null,
             instanceName: continuousPlacementSettings.instanceName || null,
@@ -844,9 +848,9 @@ export const StellaMontisMapClient = memo(function StellaMontisMapClient({ isAdm
   };
 
   const handleLabelAdded = async () => {
-    // Refetch labels
+    // Refetch labels for current floor
     try {
-      const response = await fetch('/api/maps/stella-montis/labels');
+      const response = await fetch(`/api/maps/stella-montis/labels?floor=${currentFloor}`);
       const data = await response.json();
       if (data.success) {
         setAreaLabels(data.labels);
@@ -1258,6 +1262,8 @@ export const StellaMontisMapClient = memo(function StellaMontisMapClient({ isAdm
         onMarkerAdded={handleMarkerAdded}
         onStartContinuousPlacement={handleStartContinuousPlacement}
         zlayers={currentFloor === 'bottom' ? 1 : currentFloor === 'top' ? 2 : 2147483647}
+        showFloorSelector={isAdminMode}
+        currentFloor={currentFloor}
       />
 
       {/* Add Area Label Modal */}
@@ -1267,6 +1273,8 @@ export const StellaMontisMapClient = memo(function StellaMontisMapClient({ isAdm
         position={newLabelPosition}
         mapId="stella-montis"
         onLabelAdded={handleLabelAdded}
+        showFloorSelector={isAdminMode}
+        currentFloor={currentFloor}
       />
     </div>
   );
