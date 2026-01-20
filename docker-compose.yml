@@ -1,5 +1,5 @@
-# Docker Compose for ARC Raiders Guide - Scaled for 30k+ Concurrent Users
-# Uses nginx load balancer with 4 app instances
+# Docker Compose for ARC Raiders Guide
+# Uses nginx load balancer with 2 app instances
 
 services:
   postgres:
@@ -45,6 +45,14 @@ services:
       PGBOUNCER_RESERVE_POOL_SIZE: 25
       PGBOUNCER_SERVER_IDLE_TIMEOUT: 600
       PGBOUNCER_MAX_DB_CONNECTIONS: 100
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
     networks:
       - arcraiders-network
 
@@ -63,6 +71,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 1G
+        reservations:
+          cpus: '0.1'
+          memory: 256M
     networks:
       - arcraiders-network
 
@@ -87,6 +103,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: 256M
+        reservations:
+          cpus: '0.02'
+          memory: 128M
     networks:
       - arcraiders-network
 
@@ -122,21 +146,24 @@ services:
       - '80:80'
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - nginx_cache:/var/cache/nginx
     depends_on:
       app1:
         condition: service_healthy
       app2:
-        condition: service_healthy
-      app3:
-        condition: service_healthy
-      app4:
         condition: service_healthy
     healthcheck:
       test: ['CMD', 'wget', '-q', '--spider', 'http://localhost/nginx-health']
       interval: 30s
       timeout: 10s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
     networks:
       - arcraiders-network
 
@@ -179,6 +206,19 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
     networks:
       - arcraiders-network
 
@@ -221,90 +261,19 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    networks:
-      - arcraiders-network
-
-  # App Instance 3
-  app3:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: arcraiders-app3
-    restart: unless-stopped
-    env_file:
-      - .env.local
-    working_dir: /app
-    depends_on:
-      pgbouncer:
-        condition: service_started
-      redis:
-        condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
-    entrypoint: []
-    command: ['node', 'server.js']
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@pgbouncer:6432/${POSTGRES_DB:-arcraiders}?schema=public&pgbouncer=true
-      REDIS_URL: redis://redis:6379
-      AUTH_URL: ${AUTH_URL:-http://145.223.116.42}
-      AUTH_SECRET: ${AUTH_SECRET}
-      AUTH_TRUST_HOST: true
-      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:-}
-      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET:-}
-      PORT: 3001
-      HOSTNAME: 0.0.0.0
-      INSTANCE_ID: app3
-    volumes:
-      - ./prisma:/app/prisma
-    healthcheck:
-      test: ['CMD', 'node', '-e', "require('http').get('http://localhost:3001', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    networks:
-      - arcraiders-network
-
-  # App Instance 4
-  app4:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: arcraiders-app4
-    restart: unless-stopped
-    env_file:
-      - .env.local
-    working_dir: /app
-    depends_on:
-      pgbouncer:
-        condition: service_started
-      redis:
-        condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
-    entrypoint: []
-    command: ['node', 'server.js']
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@pgbouncer:6432/${POSTGRES_DB:-arcraiders}?schema=public&pgbouncer=true
-      REDIS_URL: redis://redis:6379
-      AUTH_URL: ${AUTH_URL:-http://145.223.116.42}
-      AUTH_SECRET: ${AUTH_SECRET}
-      AUTH_TRUST_HOST: true
-      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:-}
-      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET:-}
-      PORT: 3001
-      HOSTNAME: 0.0.0.0
-      INSTANCE_ID: app4
-    volumes:
-      - ./prisma:/app/prisma
-    healthcheck:
-      test: ['CMD', 'node', '-e', "require('http').get('http://localhost:3001', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
     networks:
       - arcraiders-network
 
@@ -318,6 +287,4 @@ volumes:
   redis_data:
     driver: local
   minio_data:
-    driver: local
-  nginx_cache:
     driver: local
