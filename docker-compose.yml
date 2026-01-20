@@ -31,11 +31,16 @@ services:
     ports:
       - '6432:6432'
     environment:
-      # Uses DATABASE_URL from .env.local (already URL-encoded)
-      DATABASE_URL: ${DATABASE_URL}
+      # Use individual vars to avoid URL encoding issues with special chars in password
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-arcraiders}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
       # PgBouncer settings
+      LISTEN_PORT: 6432
       POOL_MODE: transaction
-      AUTH_TYPE: md5
+      AUTH_TYPE: scram-sha-256
       # Increased limits for 30k+ concurrent users
       MAX_CLIENT_CONN: 5000
       DEFAULT_POOL_SIZE: 50
