@@ -31,8 +31,8 @@ services:
     ports:
       - '6432:6432'
     environment:
-      # Explicit connection to remote Postgres (not wildcard)
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@145.223.116.42:5432/${POSTGRES_DB:-arcraiders}
+      # Uses DATABASE_URL from .env.local (already URL-encoded)
+      DATABASE_URL: ${DATABASE_URL}
       # PgBouncer settings
       POOL_MODE: transaction
       AUTH_TYPE: md5
@@ -130,9 +130,9 @@ services:
       "
     environment:
       NODE_ENV: production
-      # Migrations connect DIRECTLY to Postgres (not through PgBouncer)
-      # PgBouncer in transaction mode doesn't support DDL/migrations
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@145.223.116.42:5432/${POSTGRES_DB:-arcraiders}?schema=public
+      # Uses DATABASE_URL from .env.local (direct Postgres connection, already URL-encoded)
+      # Migrations must bypass PgBouncer - your .env.local uses port 5432 which is correct
+      DATABASE_URL: ${DATABASE_URL}
     volumes:
       - ./prisma:/app/prisma
     networks:
@@ -189,7 +189,7 @@ services:
     command: ['node', 'server.js']
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@pgbouncer:6432/${POSTGRES_DB:-arcraiders}?schema=public&pgbouncer=true
+      DATABASE_URL: ${DATABASE_URL_PGBOUNCER}
       REDIS_URL: redis://redis:6379
       AUTH_URL: ${AUTH_URL:-http://145.223.116.42}
       AUTH_SECRET: ${AUTH_SECRET}
@@ -244,7 +244,7 @@ services:
     command: ['node', 'server.js']
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@pgbouncer:6432/${POSTGRES_DB:-arcraiders}?schema=public&pgbouncer=true
+      DATABASE_URL: ${DATABASE_URL_PGBOUNCER}
       REDIS_URL: redis://redis:6379
       AUTH_URL: ${AUTH_URL:-http://145.223.116.42}
       AUTH_SECRET: ${AUTH_SECRET}
