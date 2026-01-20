@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import Link from 'next/link';
-import { Search, ChevronDown, Star, User, Bell, Loader2, MapPin, Clock, Zap } from 'lucide-react';
-import { useSearch } from '@/hooks/useSearch';
+import { User, Bell, MapPin, Clock, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEventTimers, formatTimeRemaining } from '@/app/features/event-timers';
 import { UserButton } from '@/app/features/auth';
@@ -24,7 +23,6 @@ interface NavbarProps {
 }
 
 export function Navbar({ session }: NavbarProps) {
-  const { query, setQuery, results, isLoading, isOpen, setIsOpen, hasResults } = useSearch();
   const { activeEvents } = useEventTimers();
 
   // Memoize event filtering and deduplication to avoid recalculating on every render
@@ -62,20 +60,6 @@ export function Navbar({ session }: NavbarProps) {
     };
   }, [activeEvents]);
 
-
-  const searchRef = useRef<HTMLDivElement>(null);
-
-  // Close search on outside click
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [setIsOpen]);
-
   // Get user initials for avatar fallback
   const getUserInitials = (user: Session['user']) => {
     if (user.name) {
@@ -95,120 +79,12 @@ export function Navbar({ session }: NavbarProps) {
   return (
       <nav className="fixed top-0 left-0 right-0 h-14 bg-background-elevated border-b border-border z-50">
         <div className="flex items-center justify-between h-full px-4">
-          {/* Left section */}
-          <div className="flex items-center gap-6">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">3RB</span>
-              </div>
-            </Link>
-
-            {/* Browse Games dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors outline-none">
-                تصفح الألعاب
-                <ChevronDown className="w-4 h-4" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-48">
-                <DropdownMenuItem asChild>
-                  <Link href="/" className="flex items-center gap-3 cursor-pointer">
-                    <div className="w-8 h-8 rounded bg-primary/20 flex items-center justify-center">
-                      <span className="text-primary text-xs font-bold">3RB</span>
-                    </div>
-                    <span className="text-sm">3RB</span>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          {/* Center - Search */}
-          <div className="flex-1 max-w-md mx-4" ref={searchRef}>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="ابحث في 3RB"
-                className="search-input w-full"
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  setIsOpen(true);
-                }}
-                onFocus={() => setIsOpen(true)}
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                Ctrl + K
-              </span>
-
-              {/* Search Results Dropdown */}
-              {isOpen && query.length >= 3 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border rounded-lg shadow-card max-h-96 overflow-y-auto z-50 animate-fade-in">
-                  {isLoading ? (
-                    <div className="flex items-center justify-center p-8">
-                      <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                    </div>
-                  ) : hasResults ? (
-                    <div className="p-2 space-y-4">
-                      {results.items.length > 0 && (
-                        <div>
-                          <h4 className="text-xs font-semibold text-muted-foreground uppercase px-2 mb-2">العناصر</h4>
-                          {results.items.slice(0, 5).map(item => (
-                            <Link
-                              key={item.id}
-                              href={`/items/${item.id}`}
-                              className="flex items-center gap-3 px-2 py-2 rounded hover:bg-secondary transition-colors"
-                              onClick={() => setIsOpen(false)}
-                            >
-                              {item.icon && (
-                                <img src={item.icon} alt="" className="w-8 h-8 rounded object-cover" />
-                              )}
-                              <span className="text-sm">{item.name}</span>
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                      {results.quests.length > 0 && (
-                        <div>
-                          <h4 className="text-xs font-semibold text-muted-foreground uppercase px-2 mb-2">المهام</h4>
-                          {results.quests.slice(0, 5).map(quest => (
-                            <Link
-                              key={quest.id}
-                              href={`/quests/${quest.id}`}
-                              className="flex items-center gap-3 px-2 py-2 rounded hover:bg-secondary transition-colors"
-                              onClick={() => setIsOpen(false)}
-                            >
-                              <span className="text-sm">{quest.name}</span>
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                      {results.guides.length > 0 && (
-                        <div>
-                          <h4 className="text-xs font-semibold text-muted-foreground uppercase px-2 mb-2">الأدلة</h4>
-                          {results.guides.slice(0, 5).map(guide => (
-                            <Link
-                              key={guide.id}
-                              href={`/guides/${guide.id}`}
-                              className="flex items-center gap-3 px-2 py-2 rounded hover:bg-secondary transition-colors"
-                              onClick={() => setIsOpen(false)}
-                            >
-                              <span className="text-sm">{guide.title}</span>
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="p-8 text-center text-muted-foreground">
-                      لا توجد نتائج لـ "{query}"
-                    </div>
-                  )}
-                </div>
-              )}
+          {/* Left section - Logo */}
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-sm">3RB</span>
             </div>
-          </div>
+          </Link>
 
           {/* Right section */}
           <div className="flex items-center gap-3">
@@ -338,35 +214,6 @@ export function Navbar({ session }: NavbarProps) {
                 {activeEventCount === 0 && upcomingEventCount === 0 && (
                   <div className="p-4 text-center text-sm text-muted-foreground">
                     لا توجد أحداث حاليًا
-                  </div>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Favorites */}
-            <DropdownMenu>
-              <DropdownMenuTrigger className={cn(
-                "w-9 h-9 rounded-full flex items-center justify-center hover:bg-primary-glow transition-colors outline-none",
-                session?.user?.role === 'ADMIN' ? "bg-green-500 hover:bg-green-600" : "bg-primary"
-              )}>
-                <Star className="w-4 h-4 text-primary-foreground" fill="currentColor" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64">
-                <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground uppercase">
-                  {session?.user?.role === 'ADMIN' ? 'لوحة الإدارة' : 'المفضلة'}
-                </DropdownMenuLabel>
-                {session?.user?.role === 'ADMIN' ? (
-                  <div className="p-2">
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin" className="w-full text-right cursor-pointer justify-end">
-                        لوحة التحكم
-                      </Link>
-                    </DropdownMenuItem>
-                  </div>
-                ) : (
-                  <div className="p-4 text-center text-sm text-muted-foreground">
-                    <p>لا توجد مفضلة بعد</p>
-                    <p className="text-xs mt-1">ضع نجمة على الصفحات لحفظها هنا</p>
                   </div>
                 )}
               </DropdownMenuContent>

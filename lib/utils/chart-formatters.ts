@@ -270,25 +270,70 @@ export function getActivityTypeStyle(type: string): {
       color: colors.primary,
       bgColor: "bg-orange-500/10",
     },
+    LISTING_UPDATED: {
+      icon: "Edit",
+      color: colors.primary,
+      bgColor: "bg-orange-500/10",
+    },
+    LISTING_DELETED: {
+      icon: "Trash",
+      color: colors.danger,
+      bgColor: "bg-red-500/10",
+    },
     TRADE_COMPLETED: {
       icon: "Handshake",
       color: colors.success,
       bgColor: "bg-green-500/10",
+    },
+    CHAT_STARTED: {
+      icon: "MessageSquare",
+      color: colors.secondary,
+      bgColor: "bg-purple-500/10",
     },
     GUIDE_CREATED: {
       icon: "BookOpen",
       color: colors.primary,
       bgColor: "bg-orange-500/10",
     },
+    GUIDE_UPDATED: {
+      icon: "FileEdit",
+      color: colors.primary,
+      bgColor: "bg-orange-500/10",
+    },
+    GUIDE_DELETED: {
+      icon: "FileX",
+      color: colors.danger,
+      bgColor: "bg-red-500/10",
+    },
     MAP_MARKER_ADDED: {
       icon: "MapPin",
       color: colors.warning,
       bgColor: "bg-yellow-500/10",
     },
+    MAP_MARKER_DELETED: {
+      icon: "MapPinOff",
+      color: colors.danger,
+      bgColor: "bg-red-500/10",
+    },
+    ITEM_CREATED: {
+      icon: "Package",
+      color: colors.success,
+      bgColor: "bg-green-500/10",
+    },
+    ITEM_UPDATED: {
+      icon: "PackageCheck",
+      color: colors.primary,
+      bgColor: "bg-orange-500/10",
+    },
     ADMIN_ACTION: {
       icon: "Shield",
       color: colors.danger,
       bgColor: "bg-red-500/10",
+    },
+    SYSTEM_EVENT: {
+      icon: "Cog",
+      color: colors.muted,
+      bgColor: "bg-gray-500/10",
     },
   };
 

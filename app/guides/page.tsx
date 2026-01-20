@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Star } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { GuideCard } from "@/app/features/guides/components/GuideCard";
 import { Pagination } from "@/components/common/Pagination";
@@ -51,17 +50,8 @@ export default async function GuidesPage({ searchParams }: GuidesPageProps) {
         <span className="text-foreground">الأدلة</span>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-3xl font-bold text-foreground">الأدلة</h1>
-        </div>
-        <button
-          className="rounded-lg border border-border p-2 transition-colors hover:bg-secondary"
-          aria-label="حفظ صفحة الأدلة في المفضلة"
-          type="button"
-        >
-          <Star className="h-5 w-5 text-muted-foreground" />
-        </button>
+      <div>
+        <h1 className="font-display text-3xl font-bold text-foreground">الأدلة</h1>
       </div>
 
       {guides.length === 0 ? (

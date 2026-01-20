@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Copy, Eye, EyeOff, Heart, HeartOff, Search, Trash2, X, Plus } from 'lucide-react';
+import { Copy, Eye, EyeOff, Search, Trash2, X, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
 import { getLoadouts, deleteLoadout as deleteLoadoutAction } from '@/app/features/loadouts/services/loadouts-actions';
@@ -47,7 +47,6 @@ const formatDate = (value: Date | string) => {
 export default function CommunityLoadoutsPage() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [favorited, setFavorited] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagsOpen, setTagsOpen] = useState(false);
@@ -216,18 +215,6 @@ export default function CommunityLoadoutsPage() {
             <h1 className="text-2xl font-bold uppercase tracking-wide text-foreground">حمولات المجتمع</h1>
             <p className="text-sm text-muted-foreground">Arc Raiders &lt; الحمولات</p>
           </div>
-          <button
-            onClick={() => setFavorited((prev) => !prev)}
-            className={cn(
-              'inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-colors',
-              favorited
-                ? 'border-primary/70 bg-primary/10 text-primary'
-                : 'border-border bg-card/60 text-foreground hover:border-primary/60'
-            )}
-          >
-            {favorited ? <Heart className="w-4 h-4 fill-primary text-primary" /> : <HeartOff className="w-4 h-4" />}
-            {favorited ? 'تمت الإضافة للمفضلة' : 'إضافة للمفضلة'}
-          </button>
         </div>
 
         {/* Search and Filters */}

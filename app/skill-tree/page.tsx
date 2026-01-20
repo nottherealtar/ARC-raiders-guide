@@ -1,16 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Star } from "lucide-react";
 import { SkillTreeCanvas } from "@/app/features/skill-tree/components/SkillTreeCanvas";
 import { SelectedSkillsSection } from "@/app/features/skill-tree/components/SelectedSkillsSection";
 import { AllSkillsSection } from "@/app/features/skill-tree/components/AllSkillsSection";
-import { Button } from "@/components/ui/button";
 import { useSkillTree } from "@/hooks/useSkillTree";
-import { cn } from "@/lib/utils";
 
 export default function SkillTreePage() {
-  const [isFavorite, setIsFavorite] = useState(false);
   const {
     skillLevels,
     expeditionPoints,
@@ -39,18 +35,6 @@ export default function SkillTreePage() {
               قم ببناء وتخصيص شجرة المهارات الخاصة بك
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "gap-2 transition-colors",
-              isFavorite && "text-yellow-500"
-            )}
-            onClick={() => setIsFavorite(!isFavorite)}
-          >
-            <Star className={cn("h-4 w-4", isFavorite && "fill-current")} />
-            إضافة للمفضلة
-          </Button>
         </div>
       </div>
 

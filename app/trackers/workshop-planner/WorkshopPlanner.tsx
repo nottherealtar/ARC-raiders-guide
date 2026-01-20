@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Hammer, Star, StarOff, Triangle, Wrench } from 'lucide-react';
+import { Hammer, Triangle, Wrench } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WorkbenchPlannerData, WorkbenchLevelData } from './actions';
 
@@ -285,19 +285,6 @@ export default function WorkshopPlanner({
 }: {
   workbenchData: WorkbenchPlannerData[];
 }) {
-  const [favorited, setFavorited] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('workshop-favorited');
-    if (saved) {
-      setFavorited(JSON.parse(saved));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('workshop-favorited', JSON.stringify(favorited));
-  }, [favorited]);
-
   const workshopModules: WorkshopModule[] = workbenchData.map((data) => {
     const config = workbenchConfig[data.type] || {
       nameAr: data.name,
@@ -339,23 +326,6 @@ export default function WorkshopPlanner({
               </Link>
             </div>
           </div>
-
-          <button
-            onClick={() => setFavorited((prev) => !prev)}
-            className={cn(
-              'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors',
-              favorited
-                ? 'border-primary/70 bg-primary/10 text-primary'
-                : 'border-border bg-muted/40 text-foreground hover:border-primary/60'
-            )}
-          >
-            {favorited ? (
-              <Star className="w-4 h-4 fill-primary text-primary" />
-            ) : (
-              <StarOff className="w-4 h-4" />
-            )}
-            {favorited ? 'تمت الإضافة للمفضلة' : 'إضافة للمفضلة'}
-          </button>
         </div>
 
         <div className="space-y-2">

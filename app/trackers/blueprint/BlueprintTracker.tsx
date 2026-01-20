@@ -11,8 +11,6 @@ import {
   Lock,
   Search,
   Sparkles,
-  Star,
-  StarOff,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getBlueprints, type Blueprint as DbBlueprint } from './actions';
@@ -57,7 +55,6 @@ export default function BlueprintTracker() {
   const [tab, setTab] = useState<Tab>('needed');
   const [searchQuery, setSearchQuery] = useState('');
   const [blueprints, setBlueprints] = useState<Blueprint[]>([]);
-  const [favorited, setFavorited] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Location voting state
@@ -161,8 +158,6 @@ export default function BlueprintTracker() {
       return false;
     });
   }, [blueprints, searchQuery, tab]);
-
-  const toggleFavourite = () => setFavorited((prev) => !prev);
 
   const updateBlueprint = (id: string, updater: (bp: Blueprint) => Blueprint) => {
     setBlueprints((prev) => prev.map((bp) => (bp.id === id ? updater(bp) : bp)));
@@ -348,19 +343,6 @@ export default function BlueprintTracker() {
               <span className="text-foreground font-semibold">متتبع المخططات</span>
             </div>
           </div>
-
-          <button
-            onClick={toggleFavourite}
-            className={cn(
-              'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors shadow-sm',
-              favorited
-                ? 'border-primary/70 bg-primary/10 text-primary'
-                : 'border-border bg-muted/40 text-foreground hover:border-primary/60'
-            )}
-          >
-            {favorited ? <Star className="w-4 h-4 fill-primary text-primary" /> : <StarOff className="w-4 h-4" />}
-            {favorited ? 'مضاف للمفضلة' : 'أضف للمفضلة'}
-          </button>
         </div>
 
         {/* Intro line */}

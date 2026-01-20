@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Bell, Star, StarOff, Loader2, Calendar } from 'lucide-react';
+import { Bell, Loader2, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type ApiEvent = {
@@ -118,7 +118,6 @@ const transformApiData = (apiEvents: ApiEvent[]): EventDefinition[] => {
 
 export default function EventTimersPage() {
   const [now, setNow] = useState(() => new Date());
-  const [favourite, setFavourite] = useState(false);
   const [mapNotifications, setMapNotifications] = useState<Record<string, string[]>>({});
   const [events, setEvents] = useState<EventDefinition[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -244,23 +243,6 @@ export default function EventTimersPage() {
               <span className="text-white/70">مؤقتات الأحداث</span>
             </div>
           </div>
-
-          <button
-            onClick={() => setFavourite((prev) => !prev)}
-            className={cn(
-              'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[12px] md:text-[14px] font-semibold transition-all shadow-sm',
-              favourite
-                ? 'border-[#4DB3FF] bg-[#4DB3FF]/15 text-[#4DB3FF] shadow-[0_0_18px_rgba(77,179,255,0.35)]'
-                : 'border-white/10 bg-white/5 text-white/80 hover:border-white/30'
-            )}
-          >
-            {favourite ? (
-              <Star className="w-4 h-4 text-[#4DB3FF] fill-[#4DB3FF]" />
-            ) : (
-              <StarOff className="w-4 h-4" />
-            )}
-            {favourite ? 'تمت الإضافة للمفضلة' : 'إضافة للمفضلة'}
-          </button>
         </header>
 
         <section className="flex flex-wrap items-center justify-between gap-2 text-[#A0A0A0] text-[12px] md:text-[14px]">

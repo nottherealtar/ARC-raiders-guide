@@ -848,3 +848,35 @@ enum NotificationType {
   BLOG_COMMENT_REPLY
   CHAT_MESSAGE
 }
+
+// Site Settings for Admin Configuration
+model SiteSetting {
+  id            String           @id @default(cuid())
+  key           String           @unique
+  value         String
+  valueType     SettingValueType @default(STRING)
+  category      SettingCategory
+  label         String
+  labelAr       String
+  description   String?
+  descriptionAr String?
+  created_at    DateTime         @default(now())
+  updated_at    DateTime         @updatedAt
+
+  @@index([category])
+  @@index([key])
+}
+
+enum SettingValueType {
+  STRING
+  NUMBER
+  BOOLEAN
+  JSON
+}
+
+enum SettingCategory {
+  GENERAL
+  FEATURES
+  SECURITY
+  SYSTEM
+}

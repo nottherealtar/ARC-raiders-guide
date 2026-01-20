@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useMemo, useState, useEffect } from 'react';
-import { Search, Star, StarOff, GripVertical } from 'lucide-react';
+import { Search, GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DndContext,
@@ -209,7 +209,6 @@ function DroppableTier({
 
 export default function WeaponsTierListPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [favorited, setFavorited] = useState(false);
   const [weapons, setWeapons] = useState<WeaponItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -391,18 +390,6 @@ export default function WeaponsTierListPage() {
                 <span className="text-foreground font-semibold">تصنيف الأسلحة</span>
               </div>
             </div>
-            <button
-              onClick={() => setFavorited((prev) => !prev)}
-              className={cn(
-                'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors shadow-sm',
-                favorited
-                  ? 'border-primary/70 bg-primary/10 text-primary'
-                  : 'border-border bg-muted/40 text-foreground'
-              )}
-            >
-              {favorited ? <Star className="w-4 h-4 fill-primary text-primary" /> : <StarOff className="w-4 h-4" />}
-              {favorited ? 'تمت الإضافة إلى المفضلة' : 'أضف إلى المفضلة'}
-            </button>
           </div>
 
           {/* Description */}

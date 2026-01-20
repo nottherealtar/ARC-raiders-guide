@@ -1,13 +1,44 @@
 import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
+import { isMaintenanceModeCached } from "@/lib/services/settings-cache";
+
+// Routes that bypass maintenance mode check
+const maintenanceBypassRoutes = [
+  "/maintenance",
+  "/admin",
+  "/api",
+  "/login",
+  "/register",
+  "/banned",
+  "/unauthorized",
+  "/_next",
+  "/favicon",
+];
 
 // Proxy middleware for authentication (Next.js 16+)
 // Runs in Node.js runtime, so Prisma is supported
-export default auth((req) => {
+export default auth(async (req) => {
   const isLoggedIn = !!req.auth;
   const isAdmin = req.auth?.user?.role === 'ADMIN';
   const isBanned = (req.auth?.user as any)?.banned === true;
   const { pathname } = req.nextUrl;
+
+  // Check maintenance mode (skip for bypass routes)
+  const shouldCheckMaintenance = !maintenanceBypassRoutes.some(route =>
+    pathname.startsWith(route)
+  );
+
+  if (shouldCheckMaintenance && !isAdmin) {
+    try {
+      const maintenanceEnabled = await isMaintenanceModeCached();
+      if (maintenanceEnabled) {
+        return NextResponse.redirect(new URL("/maintenance", req.url));
+      }
+    } catch (error) {
+      // If we can't check settings, don't block the request
+      console.error("Failed to check maintenance mode:", error);
+    }
+  }
 
   // Define protected routes
   const isProtectedRoute = pathname.startsWith("/dashboard") ||
@@ -23,6 +54,9 @@ export default auth((req) => {
 
   // Define banned page route
   const isBannedRoute = pathname.startsWith("/banned");
+
+  // Define maintenance page route
+  const isMaintenanceRoute = pathname.startsWith("/maintenance");
 
   // Redirect banned users to banned page (except if already on banned page)
   if (isLoggedIn && isBanned && !isBannedRoute) {
@@ -49,6 +83,19 @@ export default auth((req) => {
   // Redirect authenticated users away from auth pages to home
   if (isAuthRoute && isLoggedIn) {
     return NextResponse.redirect(new URL("/", req.url));
+  }
+
+  // Redirect from maintenance page if maintenance is not enabled (for non-admin users)
+  if (isMaintenanceRoute && !isAdmin) {
+    try {
+      const maintenanceEnabled = await isMaintenanceModeCached();
+      if (!maintenanceEnabled) {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+    } catch (error) {
+      // If we can't check, redirect to home to be safe
+      return NextResponse.redirect(new URL("/", req.url));
+    }
   }
 
   return NextResponse.next();
