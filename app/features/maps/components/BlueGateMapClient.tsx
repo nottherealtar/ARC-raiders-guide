@@ -168,17 +168,26 @@ function MapClickHandler({
   return null;
 }
 
+// Helper to get floor label from zlayers value
+function getFloorLabel(zlayers?: number): { ar: string; en: string } {
+  if (zlayers === 1) return { ar: 'تحت الأرض', en: 'Underground' };
+  if (zlayers === 2) return { ar: 'السطح', en: 'Surface' };
+  return { ar: 'الكل', en: 'Both' };
+}
+
 // Component to display area labels
 function AreaLabels({
   show,
   labels,
   isAdminMode,
   onDelete,
+  onFloorChange,
 }: {
   show: boolean;
   labels: AreaLabel[];
   isAdminMode?: boolean;
   onDelete?: (id: string) => void;
+  onFloorChange?: (labelId: string, newZlayers: number) => void;
 }) {
   if (!show) return null;
 
@@ -214,6 +223,8 @@ function AreaLabels({
           iconAnchor: [100, 20],
         });
 
+        const floorLabel = getFloorLabel(area.zlayers);
+
         return (
           <Marker
             key={area.id}
@@ -223,17 +234,52 @@ function AreaLabels({
           >
             {isAdminMode && onDelete && (
               <Popup>
-                <div className="min-w-[150px]">
+                <div className="min-w-[180px]">
                   <div className="font-bold mb-2">{area.nameAr}</div>
                   <div className="text-sm text-muted-foreground mb-2">{area.name}</div>
                   <div className="text-xs mb-2">
                     حجم الخط: {area.fontSize || 14}px • اللون: {area.color || '#ffffff'}
                   </div>
+                  <div className="text-xs mb-3 p-2 bg-muted rounded">
+                    <span className="font-medium">الطابق الحالي: </span>
+                    <span className={area.zlayers === 2147483647 ? 'text-yellow-500 font-bold' : ''}>
+                      {floorLabel.ar}
+                    </span>
+                    {area.zlayers === 2147483647 && (
+                      <div className="text-yellow-600 mt-1 text-[10px]">
+                        يظهر على كلا الطابقين
+                      </div>
+                    )}
+                  </div>
+                  {onFloorChange && (
+                    <div className="flex gap-1 mb-2">
+                      <button
+                        onClick={() => onFloorChange(area.id, 2)}
+                        className={`flex-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
+                          area.zlayers === 2
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted hover:bg-muted/80'
+                        }`}
+                      >
+                        السطح
+                      </button>
+                      <button
+                        onClick={() => onFloorChange(area.id, 1)}
+                        className={`flex-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
+                          area.zlayers === 1
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted hover:bg-muted/80'
+                        }`}
+                      >
+                        تحت الأرض
+                      </button>
+                    </div>
+                  )}
                   <button
                     onClick={() => onDelete(area.id)}
                     className="w-full px-3 py-2 bg-destructive text-destructive-foreground rounded-md text-sm font-medium hover:bg-destructive/90 transition-colors"
                   >
-                    🗑️ حذف العنوان
+                    حذف العنوان
                   </button>
                 </div>
               </Popup>
@@ -861,6 +907,29 @@ export const BlueGateMapClient = memo(function BlueGateMapClient({ isAdminMode =
     }
   };
 
+  const handleLabelFloorChange = async (labelId: string, newZlayers: number) => {
+    try {
+      const response = await fetch(`/api/maps/blue-gate/labels/${labelId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ zlayers: newZlayers }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        alert('فشل في تغيير الطابق');
+        return;
+      }
+
+      // Refetch labels to update the view
+      handleLabelAdded();
+    } catch (error) {
+      console.error('Error updating label floor:', error);
+      alert('حدث خطأ أثناء التحديث');
+    }
+  };
+
   const handleDeleteMarker = async (markerId: string) => {
     if (!confirm('هل أنت متأكد من حذف هذه العلامة؟')) {
       return;
@@ -1081,6 +1150,7 @@ export const BlueGateMapClient = memo(function BlueGateMapClient({ isAdminMode =
           labels={areaLabels}
           isAdminMode={isAdminMode}
           onDelete={handleDeleteLabel}
+          onFloorChange={handleLabelFloorChange}
         />
         <RegionDisplay
           regions={regions}
