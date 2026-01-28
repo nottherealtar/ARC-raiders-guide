@@ -463,7 +463,7 @@ export function Marketplace({ session, userProfile }: MarketplaceProps) {
               <SelectItem value="all">كل الطرق</SelectItem>
               <SelectItem value="SEEDS">بذور</SelectItem>
               <SelectItem value="ITEMS">عناصر</SelectItem>
-              <SelectItem value="OPEN_OFFERS">عروض مفتوحة</SelectItem>
+              <SelectItem value="OPEN_OFFERS">متاح للعروض</SelectItem>
             </SelectContent>
           </Select>
 
