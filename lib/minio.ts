@@ -47,8 +47,38 @@ function getMinioClient(): Client {
 // Default bucket name
 export const BUCKET_NAME = process.env.MINIO_BUCKET_NAME || 'arcraiders-uploads'
 
+// Public endpoint for presigned URLs (goes through nginx)
+const PUBLIC_MINIO_URL = process.env.NEXT_PUBLIC_MINIO_ENDPOINT || 'http://localhost:9000'
+
+/**
+ * Rewrite internal MinIO URL to public URL
+ * Converts: http://minio:9000/bucket/file -> https://arcraiders.ae/storage/bucket/file
+ */
+function rewriteToPublicUrl(internalUrl: string): string {
+  try {
+    const url = new URL(internalUrl)
+    const publicUrl = new URL(PUBLIC_MINIO_URL)
+
+    // Replace protocol, host, and port with public endpoint
+    url.protocol = publicUrl.protocol
+    url.host = publicUrl.host
+    url.port = publicUrl.port
+
+    // If public URL has a path (like /storage), prepend it
+    if (publicUrl.pathname && publicUrl.pathname !== '/') {
+      url.pathname = publicUrl.pathname + url.pathname
+    }
+
+    return url.toString()
+  } catch {
+    // If URL parsing fails, return original
+    return internalUrl
+  }
+}
+
 /**
  * Initialize MinIO by creating the default bucket if it doesn't exist
+ * Also sets public read policy so files can be accessed without presigned URLs
  */
 export async function initializeMinio() {
   try {
@@ -58,24 +88,25 @@ export async function initializeMinio() {
     if (!bucketExists) {
       await client.makeBucket(BUCKET_NAME, process.env.MINIO_REGION || 'us-east-1')
       console.log(`✅ MinIO bucket '${BUCKET_NAME}' created successfully`)
-
-      // Set bucket policy to allow public read access (optional)
-      // Uncomment if you want uploaded files to be publicly accessible
-      // const policy = {
-      //   Version: '2012-10-17',
-      //   Statement: [
-      //     {
-      //       Effect: 'Allow',
-      //       Principal: { AWS: ['*'] },
-      //       Action: ['s3:GetObject'],
-      //       Resource: [`arn:aws:s3:::${BUCKET_NAME}/*`],
-      //     },
-      //   ],
-      // }
-      // await client.setBucketPolicy(BUCKET_NAME, JSON.stringify(policy))
     } else {
       console.log(`✅ MinIO bucket '${BUCKET_NAME}' already exists`)
     }
+
+    // Set bucket policy to allow public read access
+    // This allows files to be accessed directly without presigned URLs
+    const policy = {
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Effect: 'Allow',
+          Principal: { AWS: ['*'] },
+          Action: ['s3:GetObject'],
+          Resource: [`arn:aws:s3:::${BUCKET_NAME}/*`],
+        },
+      ],
+    }
+    await client.setBucketPolicy(BUCKET_NAME, JSON.stringify(policy))
+    console.log(`✅ MinIO bucket '${BUCKET_NAME}' public read policy set`)
   } catch (error) {
     console.error('❌ Error initializing MinIO:', error)
     throw error
@@ -113,8 +144,9 @@ export async function uploadFile(
       metadata
     )
 
-    // Generate presigned URL for the uploaded file (valid for 7 days)
-    const url = await client.presignedGetObject(BUCKET_NAME, fileName, 24 * 60 * 60 * 7)
+    // Generate public URL (no presigned signature needed since bucket has public read policy)
+    // Format: https://arcraiders.ae/storage/bucket/filename
+    const url = `${PUBLIC_MINIO_URL}/${BUCKET_NAME}/${fileName}`
 
     return { success: true, url, fileName }
   } catch (error: any) {
@@ -129,18 +161,29 @@ export async function uploadFile(
 }
 
 /**
- * Get a presigned URL for a file
+ * Get a public URL for a file
+ * @param fileName - Name of the file in the bucket
+ * @param _expirySeconds - Deprecated, kept for backwards compatibility
+ * @returns Public URL (no signature needed since bucket is public read)
+ */
+export async function getFileUrl(fileName: string, _expirySeconds?: number) {
+  // Return simple public URL (bucket has public read policy)
+  return `${PUBLIC_MINIO_URL}/${BUCKET_NAME}/${fileName}`
+}
+
+/**
+ * Get a presigned URL for a file (for private operations like uploads)
  * @param fileName - Name of the file in the bucket
  * @param expirySeconds - URL expiry time in seconds (default: 7 days)
  * @returns Presigned URL
  */
-export async function getFileUrl(fileName: string, expirySeconds: number = 24 * 60 * 60 * 7) {
+export async function getPresignedUrl(fileName: string, expirySeconds: number = 24 * 60 * 60 * 7) {
   try {
     const client = getMinioClient();
-    const url = await client.presignedGetObject(BUCKET_NAME, fileName, expirySeconds)
-    return url
+    const internalUrl = await client.presignedGetObject(BUCKET_NAME, fileName, expirySeconds)
+    return rewriteToPublicUrl(internalUrl)
   } catch (error) {
-    console.error('❌ Error getting file URL from MinIO:', error)
+    console.error('❌ Error getting presigned URL from MinIO:', error)
     throw error
   }
 }

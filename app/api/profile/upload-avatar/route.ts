@@ -77,9 +77,10 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Generate unique filename with extension
+    // Generate unique filename with timestamp to bust cache
     const ext = file.name.split('.').pop() || 'jpg';
-    const filename = `profiles/${session.user.id}.${ext}`;
+    const timestamp = Date.now();
+    const filename = `profiles/${session.user.id}_${timestamp}.${ext}`;
 
     // Upload to MinIO
     let result;
