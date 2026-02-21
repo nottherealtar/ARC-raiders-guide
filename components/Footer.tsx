@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { Gamepad2 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const { t } = useLanguage();
 
   return (
     <footer className="border-t bg-card/50 backdrop-blur-sm mt-16">
@@ -15,20 +19,20 @@ export function Footer() {
               3RB
             </h3>
             <p className="text-sm text-muted-foreground">
-              دليلك الشامل للعبة ARC Raiders - قواعد بيانات، خرائط، أدلة، وأدوات
+              {t.footer.tagline}
             </p>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-3">
-            <h4 className="font-semibold">روابط سريعة</h4>
+            <h4 className="font-semibold">{t.footer.quickLinks}</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/items"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  العناصر
+                  {t.footer.items}
                 </Link>
               </li>
               <li>
@@ -36,7 +40,7 @@ export function Footer() {
                   href="/maps"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  الخرائط
+                  {t.footer.maps}
                 </Link>
               </li>
               <li>
@@ -44,7 +48,7 @@ export function Footer() {
                   href="/traders"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  التجار
+                  {t.footer.traders}
                 </Link>
               </li>
               <li>
@@ -52,7 +56,7 @@ export function Footer() {
                   href="/events"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  الأحداث
+                  {t.footer.events}
                 </Link>
               </li>
             </ul>
@@ -60,14 +64,14 @@ export function Footer() {
 
           {/* Community */}
           <div className="space-y-3">
-            <h4 className="font-semibold">المجتمع</h4>
+            <h4 className="font-semibold">{t.footer.community}</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/blogs"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  المدونة
+                  {t.footer.blog}
                 </Link>
               </li>
               <li>
@@ -75,7 +79,7 @@ export function Footer() {
                   href="/marketplace"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  السوق
+                  {t.footer.marketplace}
                 </Link>
               </li>
               <li>
@@ -83,7 +87,7 @@ export function Footer() {
                   href="/dashboard"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  لوحة التحكم
+                  {t.footer.dashboard}
                 </Link>
               </li>
             </ul>
@@ -94,9 +98,9 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="pt-6 border-t flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground text-center md:text-start">
-            <p>© {currentYear} 3RB. جميع الحقوق محفوظة.</p>
+            <p>© {currentYear} 3RB. {t.footer.allRightsReserved}</p>
             <p className="mt-1">
-              البيانات مقدمة من{" "}
+              {t.footer.dataFrom}{" "}
               <a
                 href="https://metaforge.app/arc-raiders"
                 target="_blank"
@@ -107,7 +111,7 @@ export function Footer() {
               </a>
             </p>
             <p className="mt-1">
-              © {currentYear} 3RB - حقوق الملكية الفكرية وجميع المحتويات الخاصة بلعبة ARC Raiders تعود إلى Embark Studios. هذا الموقع هو مشروع من صنع المعجبين فقط، ولا يمثل أو يتبع شركة Embark Studios بأي شكل من الأشكال.
+              © {currentYear} 3RB - {t.footer.disclaimer}
             </p>
           </div>
 
