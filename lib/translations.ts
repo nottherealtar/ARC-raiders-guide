@@ -1,6 +1,57 @@
 export type Language = 'ar' | 'en';
 
-export const translations = {
+export interface Translations {
+  navbar: {
+    events: string; allEvents: string; viewAll: string; activeNow: string;
+    upcoming: string; noEvents: string; endsIn: string; startsIn: string;
+    profile: string; myListings: string; myTrades: string; messages: string;
+    adminPanel: string; login: string;
+  };
+  sidebar: {
+    home: string; blog: string; guides: string; loadouts: string; marketplace: string;
+    chats: string; myListings: string; database: string; arcs: string; items: string;
+    quests: string; traders: string; maps: string; dam: string; spaceport: string;
+    buriedCity: string; blueGate: string; stellaMontis: string; trackers: string;
+    blueprintTracker: string; workshopPlanner: string; skillTree: string;
+    weaponsTierList: string; eventTimer: string; discord: string;
+  };
+  footer: {
+    tagline: string; quickLinks: string; items: string; maps: string; traders: string;
+    events: string; community: string; blog: string; marketplace: string; dashboard: string;
+    allRightsReserved: string; dataFrom: string; disclaimer: string;
+  };
+  home: {
+    mapsTitle: string; itemsTitle: string; viewAllItems: string;
+    newsTitle: string; viewAllArticles: string;
+  };
+  explore: {
+    badge: string; subtitle: string; tagDatabase: string; tagMaps: string; tagCommunity: string;
+    categories: {
+      guides: { title: string; highlights: readonly string[] };
+      items: { title: string; highlights: readonly string[] };
+      arcs: { title: string; highlights: readonly string[] };
+      quests: { title: string; highlights: readonly string[] };
+      traders: { title: string; highlights: readonly string[] };
+      skillTree: { title: string; highlights: readonly string[] };
+      loadouts: { title: string; highlights: readonly string[] };
+    };
+  };
+  auth: {
+    loginTitle: string; loginDescription: string; email: string; password: string;
+    loginButton: string; loggingIn: string; orContinueWith: string; discord: string;
+    noAccount: string; registerNow: string; registerTitle: string; registerDescription: string;
+    continueWithDiscord: string; orContinueWithEmail: string; username: string; name: string;
+    passwordMinLength: string; confirmPassword: string; embarkId: string; optional: string;
+    embarkIdExample: string; createAccountButton: string; creatingAccount: string;
+    alreadyHaveAccount: string; signIn: string; logout: string; error: string;
+  };
+  items: { title: string; description: string };
+  arcs: { title: string; description: string };
+  traders: { title: string; description: string };
+  language: { switchToEnglish: string; switchToArabic: string };
+}
+
+const translationMap: Record<Language, Translations> = {
   ar: {
     // Navbar
     navbar: {
@@ -310,7 +361,7 @@ export const translations = {
           title: 'Skill Tree',
           highlights: [
             'Core paths for each playstyle',
-            'Synergy nodes worth prioritising',
+            'Synergy nodes worth prioritizing',
             'Tips for planning before respec',
           ],
         },
@@ -367,7 +418,7 @@ export const translations = {
     // Traders page
     traders: {
       title: 'Traders',
-      description: 'Browse items available from all traders. Each trader specialises in different types of equipment and supplies.',
+      description: 'Browse items available from all traders. Each trader specializes in different types of equipment and supplies.',
     },
     // Language switcher
     language: {
@@ -375,6 +426,6 @@ export const translations = {
       switchToArabic: 'العربية',
     },
   },
-} as const;
+};
 
-export type TranslationKeys = typeof translations.en;
+export const translations = translationMap;

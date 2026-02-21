@@ -1,9 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { translations, type Language } from '@/lib/translations';
-
-type Translations = typeof translations.en;
+import { translations, type Language, type Translations } from '@/lib/translations';
 
 interface LanguageContextValue {
   language: Language;
@@ -37,7 +35,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const value: LanguageContextValue = {
     language,
     setLanguage,
-    t: translations[language] as unknown as Translations,
+    t: translations[language],
     isRTL: language === 'ar',
   };
 
