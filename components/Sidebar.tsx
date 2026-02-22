@@ -9,34 +9,35 @@ import {
   Crosshair, MessageSquare, FileText, Backpack, Newspaper
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SidebarItem {
   icon: React.ElementType;
-  label: string;
+  labelKey: string;
   href?: string;
-  children?: { label: string; href: string }[];
+  children?: { labelKey: string; href: string }[];
   external?: boolean;
 }
 
 const mainItems: SidebarItem[] = [
-  { icon: Home, label: 'الرئيسية', href: '/' },
-  { icon: Newspaper, label: 'المدونة', href: '/blogs' },
-  { icon: FileText, label: 'الأدلة', href: '/guides' },
-  { icon: Backpack, label: 'الحمولات', href: '/loadouts' },
-  { icon: Package, label: 'السوق', href: '/marketplace' },
-  { icon: MessageSquare, label: 'المحادثات', href: '/chat' },
-  { icon: List, label: 'قوائمي', href: '/listings' },
+  { icon: Home, labelKey: 'home', href: '/' },
+  { icon: Newspaper, labelKey: 'blog', href: '/blogs' },
+  { icon: FileText, labelKey: 'guides', href: '/guides' },
+  { icon: Backpack, labelKey: 'loadouts', href: '/loadouts' },
+  { icon: Package, labelKey: 'marketplace', href: '/marketplace' },
+  { icon: MessageSquare, labelKey: 'chats', href: '/chat' },
+  { icon: List, labelKey: 'myListings', href: '/listings' },
 ];
 
 const databaseItems: SidebarItem[] = [
   {
     icon: Database,
-    label: 'قاعدة البيانات',
+    labelKey: 'database',
     children: [
-      { label: 'آركس', href: '/arcs' },
-      { label: 'العناصر', href: '/items' },
-      { label: 'المهام', href: '/quests' },
-      { label: 'التجار', href: '/traders' },
+      { labelKey: 'arcs', href: '/arcs' },
+      { labelKey: 'items', href: '/items' },
+      { labelKey: 'quests', href: '/quests' },
+      { labelKey: 'traders', href: '/traders' },
     ]
   },
 ];
@@ -44,13 +45,13 @@ const databaseItems: SidebarItem[] = [
 const mapItems: SidebarItem[] = [
   {
     icon: Map,
-    label: 'الخرائط',
+    labelKey: 'maps',
     children: [
-      { label: 'السد', href: '/maps/dam-battlegrounds' },
-      { label: 'الميناء الفضائي', href: '/maps/the-spaceport' },
-      { label: 'المدينة المدفونة', href: '/maps/buried-city' },
-      { label: 'البوابة الزرقاء', href: '/maps/blue-gate' },
-      { label: 'ستيلا مونتيس', href: '/maps/stella-montis' },
+      { labelKey: 'dam', href: '/maps/dam-battlegrounds' },
+      { labelKey: 'spaceport', href: '/maps/the-spaceport' },
+      { labelKey: 'buriedCity', href: '/maps/buried-city' },
+      { labelKey: 'blueGate', href: '/maps/blue-gate' },
+      { labelKey: 'stellaMontis', href: '/maps/stella-montis' },
     ]
   },
 ];
@@ -58,33 +59,34 @@ const mapItems: SidebarItem[] = [
 const trackerItems: SidebarItem[] = [
   {
     icon: Crosshair,
-    label: 'المتتبعات',
+    labelKey: 'trackers',
     children: [
-      { label: 'متتبع المخططات', href: '/trackers/blueprint' },
-      { label: 'مخطط الورشة', href: '/trackers/workshop-planner' },
-      { label: 'شجرة المهارات', href: '/skill-tree' },
+      { labelKey: 'blueprintTracker', href: '/trackers/blueprint' },
+      { labelKey: 'workshopPlanner', href: '/trackers/workshop-planner' },
+      { labelKey: 'skillTree', href: '/skill-tree' },
     ]
   },
 ];
 
 const otherItems: SidebarItem[] = [
-  { icon: Target, label: 'تصنيف الأسلحة', href: '/weapons-tier-list' },
-  { icon: Calendar, label: 'مؤقت الأحداث', href: '/events' },
+  { icon: Target, labelKey: 'weaponsTierList', href: '/weapons-tier-list' },
+  { icon: Calendar, labelKey: 'eventTimer', href: '/events' },
 ];
 
 const externalItems: SidebarItem[] = [];
 
 const bottomItems: SidebarItem[] = [
-  { icon: MessageCircle, label: 'ديسكورد', href: 'https://discord.com/invite/tags', external: true },
+  { icon: MessageCircle, labelKey: 'discord', href: 'https://discord.com/invite/tags', external: true },
 ];
 
 function SidebarSection({ items, expanded }: { items: SidebarItem[]; expanded: boolean }) {
   const pathname = usePathname();
+  const { t } = useLanguage();
   const [openMenus, setOpenMenus] = useState<string[]>([]);
 
-  const toggleMenu = (label: string) => {
+  const toggleMenu = (labelKey: string) => {
     setOpenMenus(prev =>
-      prev.includes(label) ? prev.filter(l => l !== label) : [...prev, label]
+      prev.includes(labelKey) ? prev.filter(l => l !== labelKey) : [...prev, labelKey]
     );
   };
 
@@ -97,17 +99,18 @@ function SidebarSection({ items, expanded }: { items: SidebarItem[]; expanded: b
       {items.map((item) => {
         const Icon = item.icon;
         const hasChildren = item.children && item.children.length > 0;
-        const isOpen = openMenus.includes(item.label) || (hasChildren && isChildActive(item.children!));
+        const isOpen = openMenus.includes(item.labelKey) || (hasChildren && isChildActive(item.children!));
         const active = item.href ? isActive(item.href) : false;
+        const label = t.sidebar[item.labelKey as keyof typeof t.sidebar] ?? item.labelKey;
         const labelClasses = expanded
           ? "flex-1 min-w-0 text-right text-base truncate"
           : "hidden";
 
         if (hasChildren) {
           return (
-            <div key={item.label}>
+            <div key={item.labelKey}>
               <button
-                onClick={() => toggleMenu(item.label)}
+                onClick={() => toggleMenu(item.labelKey)}
                 className={cn(
                   "w-full flex items-center rounded-lg transition-colors h-11 px-3 gap-3 justify-start",
                   "text-sidebar-foreground hover:text-foreground hover:bg-sidebar-accent",
@@ -116,7 +119,7 @@ function SidebarSection({ items, expanded }: { items: SidebarItem[]; expanded: b
               >
                 <Icon className="w-5 h-5 shrink-0" />
                 <span className={labelClasses}>
-                  {item.label}
+                  {label}
                 </span>
                 {expanded && (
                   <ChevronDown className={cn(
@@ -131,20 +134,23 @@ function SidebarSection({ items, expanded }: { items: SidebarItem[]; expanded: b
                   className="mr-8 mt-1 space-y-1 overflow-hidden transition-[max-height] duration-300 ease-out"
                   style={{ maxHeight: isOpen ? item.children!.length * 44 : 0 }}
                 >
-                  {item.children!.map((child) => (
-                    <Link
-                      key={child.href}
-                      href={child.href}
-                      className={cn(
-                        "block px-3 py-1.5 text-sm rounded-lg transition-colors text-right",
-                        isActive(child.href)
-                          ? "text-primary bg-sidebar-accent"
-                          : "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent"
-                      )}
-                    >
-                      {child.label}
-                    </Link>
-                  ))}
+                  {item.children!.map((child) => {
+                    const childLabel = t.sidebar[child.labelKey as keyof typeof t.sidebar] ?? child.labelKey;
+                    return (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className={cn(
+                          "block px-3 py-1.5 text-sm rounded-lg transition-colors text-right",
+                          isActive(child.href)
+                            ? "text-primary bg-sidebar-accent"
+                            : "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent"
+                        )}
+                      >
+                        {childLabel}
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -154,7 +160,7 @@ function SidebarSection({ items, expanded }: { items: SidebarItem[]; expanded: b
         if (item.external) {
           return (
             <a
-              key={item.label}
+              key={item.labelKey}
               href={item.href}
               target="_blank"
               rel="noopener noreferrer"
@@ -164,14 +170,14 @@ function SidebarSection({ items, expanded }: { items: SidebarItem[]; expanded: b
               )}
             >
               <Icon className="w-5 h-5 shrink-0" />
-              <span className={labelClasses}>{item.label}</span>
+              <span className={labelClasses}>{label}</span>
             </a>
           );
         }
 
         return (
           <Link
-            key={item.label}
+            key={item.labelKey}
             href={item.href!}
             className={cn(
               "flex items-center rounded-lg transition-colors h-11 px-3 gap-3 justify-start",
@@ -179,7 +185,7 @@ function SidebarSection({ items, expanded }: { items: SidebarItem[]; expanded: b
             )}
           >
             <Icon className="w-5 h-5 shrink-0" />
-            <span className={labelClasses}>{item.label}</span>
+            <span className={labelClasses}>{label}</span>
           </Link>
         );
       })}

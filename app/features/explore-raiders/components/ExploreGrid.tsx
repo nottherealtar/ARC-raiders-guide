@@ -3,89 +3,22 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ExploreCategory } from '../types';
-
-const categories: ExploreCategory[] = [
-  {
-    id: 'guides',
-    title: 'الأدلة',
-    href: '/guides',
-    imageUrl: '/images/categories/guides.webp',
-    highlights: [
-      'مسارات مختصرة مع نصائح الاشتباك',
-      'إعدادات جاهزة للفرد أو الفريق',
-      'لمحات ميتا محدثة مع كل تحديث',
-    ],
-  },
-  {
-    id: 'items',
-    title: 'العناصر',
-    href: '/items',
-    imageUrl: '/images/categories/items.webp',
-    highlights: [
-      'مدخلات التصنيع وقيم البيع',
-      'مقارنات أفضل القطع لكل خانة',
-      'فلاتر سريعة لتخطيط العتاد',
-    ],
-  },
-  {
-    id: 'arcs',
-    title: 'الآركس',
-    href: '/arcs',
-    imageUrl: '/images/categories/arcs.webp',
-    highlights: [
-      'نقاط الضعف ومستويات التهديد',
-      'جداول لوت حسب نوع الاشتباك',
-      'تكتيكات للمناطق عالية الخطورة',
-    ],
-  },
-  {
-    id: 'quests',
-    title: 'المهام',
-    href: '/quests',
-    imageUrl: '/images/categories/quests.webp',
-    highlights: [
-      'خطوات واضحة لكل هدف',
-      'قائمة العناصر المطلوبة',
-      'أسرع خطوط الإخلاء',
-    ],
-  },
-  {
-    id: 'traders',
-    title: 'التجار',
-    href: '/traders',
-    imageUrl: '/images/categories/traders.webp',
-    highlights: [
-      'مسارات فتح السمعة',
-      'هوامش الربح حسب المستوى',
-      'تذكير بمخزون الأسبوع',
-    ],
-  },
-  {
-    id: 'skill-tree',
-    title: 'شجرة المهارات',
-    href: '/skill-tree',
-    imageUrl: '/images/categories/skill-tree.webp',
-    highlights: [
-      'مسارات أساسية لكل أسلوب',
-      'عقد تآزر تستحق الأولوية',
-      'نصائح للتخطيط قبل إعادة التوزيع',
-    ],
-  },
-  {
-    id: 'loadouts',
-    title: 'العتاد',
-    href: '/loadouts',
-    imageUrl: '/images/categories/loadouts.webp',
-    highlights: [
-      'تجهيزات متوازنة حسب الميزانية',
-      'أفضل توليفات الأسلحة',
-      'أولوية الخانات المساندة',
-    ],
-  },
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function ExploreGrid() {
+  const { t } = useLanguage();
+  const ec = t.explore.categories;
+
+  const categories = [
+    { id: 'guides', title: ec.guides.title, href: '/guides', imageUrl: '/images/categories/guides.webp', highlights: ec.guides.highlights },
+    { id: 'items', title: ec.items.title, href: '/items', imageUrl: '/images/categories/items.webp', highlights: ec.items.highlights },
+    { id: 'arcs', title: ec.arcs.title, href: '/arcs', imageUrl: '/images/categories/arcs.webp', highlights: ec.arcs.highlights },
+    { id: 'quests', title: ec.quests.title, href: '/quests', imageUrl: '/images/categories/quests.webp', highlights: ec.quests.highlights },
+    { id: 'traders', title: ec.traders.title, href: '/traders', imageUrl: '/images/categories/traders.webp', highlights: ec.traders.highlights },
+    { id: 'skill-tree', title: ec.skillTree.title, href: '/skill-tree', imageUrl: '/images/categories/skill-tree.webp', highlights: ec.skillTree.highlights },
+    { id: 'loadouts', title: ec.loadouts.title, href: '/loadouts', imageUrl: '/images/categories/loadouts.webp', highlights: ec.loadouts.highlights },
+  ];
+
   const [, setActiveId] = useState(categories[0]?.id);
 
   return (
@@ -106,7 +39,7 @@ export function ExploreGrid() {
           <div className="space-y-4 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/20 border border-orange-500/30 backdrop-blur-sm">
               <span className="text-xs md:text-sm font-semibold text-orange-400 uppercase tracking-wider">
-                🎮 دليل ARC Raiders الشامل
+                {t.explore.badge}
               </span>
             </div>
 
@@ -115,18 +48,18 @@ export function ExploreGrid() {
             </h1>
 
             <p className="text-lg md:text-xl text-gray-200 max-w-xl leading-relaxed drop-shadow-lg">
-              مركزك الشامل لعالم ARC Raiders - قاعدة بيانات، أدلة، خرائط، وأدوات احترافية
+              {t.explore.subtitle}
             </p>
 
             <div className="flex flex-wrap gap-3 pt-2 justify-end">
               <div className="px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20">
-                <span className="text-sm text-gray-200">📊 قاعدة البيانات</span>
+                <span className="text-sm text-gray-200">{t.explore.tagDatabase}</span>
               </div>
               <div className="px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20">
-                <span className="text-sm text-gray-200">🗺️ الخرائط</span>
+                <span className="text-sm text-gray-200">{t.explore.tagMaps}</span>
               </div>
               <div className="px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20">
-                <span className="text-sm text-gray-200">💬 المجتمع</span>
+                <span className="text-sm text-gray-200">{t.explore.tagCommunity}</span>
               </div>
             </div>
           </div>

@@ -1,19 +1,20 @@
 import { Metadata } from 'next';
 import { ItemsDataTable } from './components/ItemsDataTable';
 import { StructuredData, getBreadcrumbSchema } from '@/components/StructuredData';
+import { PageHeader } from '@/components/common/PageHeader';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 export const metadata: Metadata = {
-  title: 'العناصر - ARC Raiders Items Database',
-  description: 'تصفح جميع العناصر في آرك رايدرز. ابحث، صفي حسب النوع والندرة، واعرض معلومات العناصر التفصيلية.',
+  title: 'Items - ARC Raiders Items Database',
+  description: 'Browse and search all items in ARC Raiders. Filter by type, rarity, and view detailed item information.',
   alternates: {
     canonical: `${baseUrl}/items`,
   },
   openGraph: {
     type: 'website',
     url: `${baseUrl}/items`,
-    title: 'العناصر - ARC Raiders Items Database',
+    title: 'Items - ARC Raiders Items Database',
     description: 'Browse all items in ARC Raiders. Search, filter by type and rarity, and view detailed item information.',
     siteName: '3RB',
     images: [
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'العناصر - ARC Raiders Items Database',
+    title: 'Items - ARC Raiders Items Database',
     description: 'Browse all items in ARC Raiders. Search, filter by type and rarity.',
     images: [`${baseUrl}/og-items.jpg`],
   },
@@ -39,22 +40,12 @@ export default function ItemsPage() {
     <main className="min-h-screen">
       <StructuredData
         data={getBreadcrumbSchema(baseUrl, [
-          { name: 'الرئيسية', url: '/' },
-          { name: 'العناصر', url: '/items' },
+          { name: 'Home', url: '/' },
+          { name: 'Items', url: '/items' },
         ])}
       />
       <div className="container mx-auto px-4 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
-            العناصر
-          </h1>
-          <p className="text-muted-foreground">
-            تصفح وابحث عن جميع العناصر في آرك رايدرز. صفي حسب النوع والندرة والمزيد.
-          </p>
-        </div>
-
-        {/* Items Data Table */}
+        <PageHeader section="items" titleKey="title" descriptionKey="description" />
         <ItemsDataTable />
       </div>
     </main>

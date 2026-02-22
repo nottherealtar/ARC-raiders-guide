@@ -9,6 +9,7 @@ import { ReactQueryProvider } from "@/components/providers/ReactQueryProvider";
 import { auth } from "@/lib/auth";
 import { StructuredData, getOrganizationSchema, getWebSiteSchema } from "@/components/StructuredData";
 import { Toaster } from "@/components/ui/toaster";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 const cairo = Cairo({
   variable: "--font-cairo",
@@ -101,15 +102,17 @@ export default async function RootLayout({
       >
         <SessionProvider session={session}>
           <ReactQueryProvider>
-            <Navbar session={session} />
-            <Sidebar />
-            <main className="mr-14 mt-14">
-              {children}
-            </main>
-            <div className="mr-14">
-              <Footer />
-            </div>
-            <Toaster />
+            <LanguageProvider>
+              <Navbar session={session} />
+              <Sidebar />
+              <main className="mr-14 mt-14">
+                {children}
+              </main>
+              <div className="mr-14">
+                <Footer />
+              </div>
+              <Toaster />
+            </LanguageProvider>
           </ReactQueryProvider>
         </SessionProvider>
       </body>

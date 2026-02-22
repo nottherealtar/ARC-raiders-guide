@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { logoutAction } from "../services/auth-actions";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface UserButtonProps {
   user: {
@@ -12,6 +13,8 @@ interface UserButtonProps {
 }
 
 export function UserButton({ user }: UserButtonProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm text-muted-foreground">
@@ -19,7 +22,7 @@ export function UserButton({ user }: UserButtonProps) {
       </span>
       <form action={logoutAction}>
         <Button type="submit" variant="outline" size="sm">
-          تسجيل الخروج
+          {t.auth.logout}
         </Button>
       </form>
     </div>

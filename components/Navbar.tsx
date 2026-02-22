@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import Link from 'next/link';
-import { User, Bell, MapPin, Clock, Zap } from 'lucide-react';
+import { User, Bell, MapPin, Clock, Zap, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEventTimers, formatTimeRemaining } from '@/app/features/event-timers';
 import { UserButton } from '@/app/features/auth';
@@ -17,6 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface NavbarProps {
   session?: Session | null;
@@ -24,6 +25,7 @@ interface NavbarProps {
 
 export function Navbar({ session }: NavbarProps) {
   const { activeEvents } = useEventTimers();
+  const { t, language, setLanguage } = useLanguage();
 
   // Filter and deduplicate events - recalculates when activeEvents changes (every second for timer updates)
   const { uniqueActiveEvents, uniqueUpcomingEvents, activeEventCount, upcomingEventCount, totalEventCount } = useMemo(() => {
@@ -94,13 +96,13 @@ export function Navbar({ session }: NavbarProps) {
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors outline-none">
                 <Bell className="w-4 h-4" />
-                <span className="hidden lg:inline">{totalEventCount} حدث</span>
+                <span className="hidden lg:inline">{totalEventCount} {t.navbar.events}</span>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-72 max-h-[500px] overflow-y-auto">
                 <div className="p-3 border-b border-border flex items-center justify-between sticky top-0 bg-popover z-10">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase">الأحداث</span>
+                  <span className="text-xs font-semibold text-muted-foreground uppercase">{t.navbar.allEvents}</span>
                   <Link href="/events" className="text-xs text-primary hover:underline">
-                    عرض الكل
+                    {t.navbar.viewAll}
                   </Link>
                 </div>
 
@@ -109,7 +111,7 @@ export function Navbar({ session }: NavbarProps) {
                   <div className="p-2">
                     <div className="px-2 py-1 text-xs font-semibold text-green-500 uppercase flex items-center gap-1">
                       <span className="w-2 h-2 rounded-full bg-green-500" />
-                      نشطة الآن ({activeEventCount})
+                      {t.navbar.activeNow} ({activeEventCount})
                     </div>
                     <div className="space-y-1 mt-1">
                       {uniqueActiveEvents.slice(0, 3).map((activeEvent, index) => (
@@ -144,7 +146,7 @@ export function Navbar({ session }: NavbarProps) {
                               </div>
                               <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                                 <Clock className="w-3 h-3" />
-                                <span>ينتهي في {formatTimeRemaining(activeEvent.timeUntilChange)}</span>
+                                <span>{t.navbar.endsIn} {formatTimeRemaining(activeEvent.timeUntilChange)}</span>
                               </div>
                             </div>
                           </Link>
@@ -159,7 +161,7 @@ export function Navbar({ session }: NavbarProps) {
                   <div className="p-2">
                     <div className="px-2 py-1 text-xs font-semibold text-blue-500 uppercase flex items-center gap-1">
                       <span className="w-2 h-2 rounded-full bg-blue-500" />
-                      قادمة ({upcomingEventCount})
+                      {t.navbar.upcoming} ({upcomingEventCount})
                     </div>
                     <div className="space-y-1 mt-1">
                       {uniqueUpcomingEvents.slice(0, 3).map((upcomingEvent, index) => (
@@ -194,7 +196,7 @@ export function Navbar({ session }: NavbarProps) {
                               </div>
                               <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                                 <Clock className="w-3 h-3" />
-                                <span>يبدأ في {formatTimeRemaining(upcomingEvent.timeUntilChange)}</span>
+                                <span>{t.navbar.startsIn} {formatTimeRemaining(upcomingEvent.timeUntilChange)}</span>
                               </div>
                             </div>
                           </Link>
@@ -207,7 +209,7 @@ export function Navbar({ session }: NavbarProps) {
                 {/* No Events */}
                 {activeEventCount === 0 && upcomingEventCount === 0 && (
                   <div className="p-4 text-center text-sm text-muted-foreground">
-                    لا توجد أحداث حاليًا
+                    {t.navbar.noEvents}
                   </div>
                 )}
               </DropdownMenuContent>
@@ -231,22 +233,22 @@ export function Navbar({ session }: NavbarProps) {
                 <DropdownMenuContent align="start" className="w-48">
                   <DropdownMenuItem asChild>
                     <Link href="/profile" className="w-full text-right cursor-pointer justify-end">
-                      ملفي الشخصي
+                      {t.navbar.profile}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/listings" className="w-full text-right cursor-pointer justify-end">
-                      قوائمي
+                      {t.navbar.myListings}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/trades" className="w-full text-right cursor-pointer justify-end">
-                      صفقاتي
+                      {t.navbar.myTrades}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/chat" className="w-full text-right cursor-pointer justify-end">
-                      الرسائل
+                      {t.navbar.messages}
                     </Link>
                   </DropdownMenuItem>
                   {(session.user.role === 'ADMIN' || session.user.role === 'MODERATOR') && (
@@ -254,7 +256,7 @@ export function Navbar({ session }: NavbarProps) {
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
                         <Link href="/admin" className="w-full text-right cursor-pointer justify-end text-primary font-semibold">
-                          لوحة التحكم
+                          {t.navbar.adminPanel}
                         </Link>
                       </DropdownMenuItem>
                     </>
@@ -271,9 +273,21 @@ export function Navbar({ session }: NavbarProps) {
                 className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors"
               >
                 <User className="w-5 h-5" />
-                <span className="hidden md:inline">تسجيل الدخول</span>
+                <span className="hidden md:inline">{t.navbar.login}</span>
               </Link>
             )}
+
+            {/* Language Switcher */}
+            <button
+              onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
+              className="flex items-center gap-1.5 text-sm text-foreground hover:text-primary transition-colors px-2 py-1 rounded-md hover:bg-accent"
+              title={language === 'ar' ? t.language.switchToEnglish : t.language.switchToArabic}
+            >
+              <Globe className="w-4 h-4" />
+              <span className="hidden sm:inline font-medium">
+                {language === 'ar' ? 'EN' : 'ع'}
+              </span>
+            </button>
           </div>
         </div>
       </nav>
